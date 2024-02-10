@@ -24,13 +24,21 @@ protected:
 
 	void InitializeMove();
 
-	void Move();
+	void SwitchDirection();
+
+	void Move(float DeltaTime);
 
 	UPROPERTY(EditAnywhere)
 	FVector StartPosition = FVector(8,8,23);
 
 	UPROPERTY(EditAnywhere)
 	FVector EndPosition = FVector(8,8,23);
+
+	UPROPERTY(EditAnywhere)
+	FVector Direction;
+
+	UPROPERTY(VisibleAnywhere)
+	FVector Origin;
 
 	UPROPERTY(EditDefaultsOnly)
 	float Delay = 2;
@@ -43,12 +51,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	float Deviation = 1;
-
-	UPROPERTY(VisibleAnywhere)
-	FVector TargetPosition = FVector();
-
-	UPROPERTY()
-	FVector Direction = FVector();
 
 	FTimerHandle MoveTimer;
 };

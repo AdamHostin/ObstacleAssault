@@ -5,41 +5,59 @@
 // Sets default values
 AOAMovingPlatform::AOAMovingPlatform()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	SetActorTickEnabled(false);
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
 void AOAMovingPlatform::BeginPlay()
 {
 	Super::BeginPlay();
-	SetActorLocation(StartPosition);
 	InitializeMove();	
 }
 
 void AOAMovingPlatform::InitializeMove()
 {
-	TargetPosition = (TargetPosition == EndPosition) ? StartPosition : EndPosition;
-	Direction = (TargetPosition - GetActorLocation());
-	Direction.Normalize();
-	GetWorld()->GetTimerManager().SetTimer(MoveTimer, this, &AOAMovingPlatform::Move, MoveRate, true);
+	if (Direction.Length() == 0)
+	{
+		SetActorLocation(StartPosition);
+		Direction = EndPosition - StartPosition;
+	}
+	else
+	{
+		StartPosition = GetActorLocation();
+		EndPosition = StartPosition + Direction;
+	}
+	Origin = StartPosition;
+	SetActorTickEnabled(true);
 }
 
-void AOAMovingPlatform::Move()
+void AOAMovingPlatform::SwitchDirection()
 {
-	FVector CurrentActorLocation = GetActorLocation();
-	SetActorLocation(CurrentActorLocation + (Direction*Speed));
-	if (FVector::Distance(TargetPosition, GetActorLocation()) <= Deviation)
+	Origin = (Origin == EndPosition) ? StartPosition : EndPosition;
+	Direction *= -1;
+	SetActorTickEnabled(true);
+}
+
+void AOAMovingPlatform::Move(float DeltaTime)
+{
+	const FVector CurrentActorLocation = GetActorLocation();
+	const FVector Offset = Direction.GetSafeNormal() * (Speed * DeltaTime);
+	SetActorLocation(CurrentActorLocation + Offset);
+	if (FVector::Distance(Origin, GetActorLocation()) < Direction.Length())
 	{
-		GetWorld()->GetTimerManager().SetTimer(MoveTimer, this, &AOAMovingPlatform::InitializeMove, Delay);
+		return;
 	}
+	SetActorTickEnabled(false);
+	GetWorld()->GetTimerManager().SetTimer(MoveTimer, this, &AOAMovingPlatform::SwitchDirection, Delay);
 }
 
 // Called every frame
 void AOAMovingPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	Move(DeltaTime);
 }
+
+
 
