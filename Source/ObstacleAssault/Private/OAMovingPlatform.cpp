@@ -43,11 +43,15 @@ void AOAMovingPlatform::Move(float DeltaTime)
 {
 	const FVector CurrentActorLocation = GetActorLocation();
 	const FVector Offset = Direction.GetSafeNormal() * (Speed * DeltaTime);
-	SetActorLocation(CurrentActorLocation + Offset);
-	if (FVector::Distance(Origin, GetActorLocation()) < Direction.Length())
+	const double DistanceMoved = FVector::Distance(Origin, (GetActorLocation() + Offset));
+	if (DistanceMoved < Direction.Length())
 	{
+		SetActorLocation(CurrentActorLocation + Offset);
 		return;
 	}
+	SetActorLocation(Origin + Direction);
+	const double OverShoot = DistanceMoved - Direction.Length();
+	//UE_LOG(LogTemp, Log, TEXT("Platform with name: %s\n overshoot eith value: %f"), *GetName(), OverShoot);
 	SetActorTickEnabled(false);
 	GetWorld()->GetTimerManager().SetTimer(MoveTimer, this, &AOAMovingPlatform::SwitchDirection, Delay);
 }
