@@ -26,7 +26,11 @@ protected:
 
 	void SwitchDirection();
 
+	double GetDistanceMoved(const FVector& CurrentLocation);
+
 	void Move(float DeltaTime);
+
+	void Rotate(float DeltaTime);
 
 	UPROPERTY(EditAnywhere)
 	FVector StartPosition = FVector(8,8,23);

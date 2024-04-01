@@ -39,21 +39,29 @@ void AOAMovingPlatform::SwitchDirection()
 	SetActorTickEnabled(true);
 }
 
+double AOAMovingPlatform::GetDistanceMoved(const FVector& CurrentLocation)
+{
+	return FVector::Distance(Origin, CurrentLocation);
+}
+
 void AOAMovingPlatform::Move(float DeltaTime)
 {
-	const FVector CurrentActorLocation = GetActorLocation();
 	const FVector Offset = Direction.GetSafeNormal() * (Speed * DeltaTime);
-	const double DistanceMoved = FVector::Distance(Origin, (GetActorLocation() + Offset));
-	if (DistanceMoved < Direction.Length())
+	if (GetDistanceMoved((GetActorLocation() + Offset)) < Direction.Length())
 	{
-		SetActorLocation(CurrentActorLocation + Offset);
+		SetActorLocation(GetActorLocation() + Offset);
 		return;
 	}
 	SetActorLocation(Origin + Direction);
-	const double OverShoot = DistanceMoved - Direction.Length();
-	//UE_LOG(LogTemp, Log, TEXT("Platform with name: %s\n overshoot eith value: %f"), *GetName(), OverShoot);
+	const double OverShoot = GetDistanceMoved(GetActorLocation()) - Direction.Length();
+	UE_LOG(LogTemp, Log, TEXT("Platform with name: %s\n overshoot eith value: %f"), *GetName(), OverShoot);
 	SetActorTickEnabled(false);
 	GetWorld()->GetTimerManager().SetTimer(MoveTimer, this, &AOAMovingPlatform::SwitchDirection, Delay);
+}
+
+void AOAMovingPlatform::Rotate(float DeltaTime)
+{
+	UE_LOG(LogTemp, Log, TEXT("Platform with name: %s\n wanabe rotating"), *GetName());
 }
 
 // Called every frame
@@ -61,6 +69,7 @@ void AOAMovingPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Move(DeltaTime);
+	Rotate(DeltaTime);
 }
 
 
