@@ -26,7 +26,7 @@ protected:
 
 	void SwitchDirection();
 
-	double GetDistanceMoved(const FVector& CurrentLocation);
+	double GetDistanceMoved(const FVector& CurrentLocation) const;
 
 	void Move(float DeltaTime);
 
@@ -35,7 +35,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FVector StartPosition = FVector(8,8,23);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	FVector EndPosition = FVector(8,8,23);
 
 	UPROPERTY(EditAnywhere)
@@ -44,17 +44,14 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	FVector Origin;
 
+	UPROPERTY(EditAnywhere)
+	FRotator RotationVelocity;
+
 	UPROPERTY(EditDefaultsOnly)
 	float Delay = 2;
 	
 	UPROPERTY(EditDefaultsOnly)
 	float Speed = 1;
-
-	UPROPERTY(EditDefaultsOnly)
-	float MoveRate = .01;
-
-	UPROPERTY(EditDefaultsOnly)
-	float Deviation = 1;
-
+	
 	FTimerHandle MoveTimer;
 };

@@ -18,16 +18,8 @@ void AOAMovingPlatform::BeginPlay()
 
 void AOAMovingPlatform::InitializeMove()
 {
-	if (Direction.Length() == 0)
-	{
-		SetActorLocation(StartPosition);
-		Direction = EndPosition - StartPosition;
-	}
-	else
-	{
-		StartPosition = GetActorLocation();
-		EndPosition = StartPosition + Direction;
-	}
+	StartPosition = GetActorLocation();
+	EndPosition = StartPosition + Direction;
 	Origin = StartPosition;
 	SetActorTickEnabled(true);
 }
@@ -39,13 +31,17 @@ void AOAMovingPlatform::SwitchDirection()
 	SetActorTickEnabled(true);
 }
 
-double AOAMovingPlatform::GetDistanceMoved(const FVector& CurrentLocation)
+double AOAMovingPlatform::GetDistanceMoved(const FVector& CurrentLocation) const
 {
 	return FVector::Distance(Origin, CurrentLocation);
 }
 
 void AOAMovingPlatform::Move(float DeltaTime)
 {
+	if (Direction.Length() == 0)
+	{
+		return;
+	}
 	const FVector Offset = Direction.GetSafeNormal() * (Speed * DeltaTime);
 	if (GetDistanceMoved((GetActorLocation() + Offset)) < Direction.Length())
 	{
@@ -53,15 +49,13 @@ void AOAMovingPlatform::Move(float DeltaTime)
 		return;
 	}
 	SetActorLocation(Origin + Direction);
-	const double OverShoot = GetDistanceMoved(GetActorLocation()) - Direction.Length();
-	UE_LOG(LogTemp, Log, TEXT("Platform with name: %s\n overshoot eith value: %f"), *GetName(), OverShoot);
 	SetActorTickEnabled(false);
 	GetWorld()->GetTimerManager().SetTimer(MoveTimer, this, &AOAMovingPlatform::SwitchDirection, Delay);
 }
 
 void AOAMovingPlatform::Rotate(float DeltaTime)
 {
-	UE_LOG(LogTemp, Log, TEXT("Platform with name: %s\n wanabe rotating"), *GetName());
+	AddActorLocalRotation(RotationVelocity * DeltaTime);
 }
 
 // Called every frame
